@@ -8,6 +8,8 @@
     "dev": "npm-run-all --parallel dev:*",
     "dev:run": "nodemon --watch dist --exec \"yarn start\"",
     "dev:run-server": "ts-node ./src/server/index.ts",
+    "dev:run2": "npm-run-all --parallel dev:build-client dev:run-server",
+    "dev:run2:watch": "nodemon --watch ./src --exec \"yarn dev:run2\"",
     "dev:run-server:watch": "nodemon --watch ./src/server --exec \"yarn dev:run-server\"",
     "dev:build-server": "NODE_ENV=development webpack --config webpack.config.server.js --watch",
     "dev:build-client": "NODE_ENV=development webpack --config webpack.config.client.js --watch",
