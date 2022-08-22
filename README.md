@@ -18,3 +18,16 @@ https://github.com/stripe/stripe-php
 - Calculate the distance between the 2 airports using the lat and lng and multiple it by $10. Make a stripe form to ask user to pay that amount. Payment must be processed.
 - Save the order placed into an order database table (id, from_airport, from_country, to_airport, to_country, total, stripe_id, status(paid, failed))
 - Create thank you page showing their order in a table
+
+
+# TO RUN
+
+### With Yarn
+`yarn install`
+`yarn build`
+`yarn start`
+
+### With npm
+`npm install`
+`npm run build`
+`npm start`
