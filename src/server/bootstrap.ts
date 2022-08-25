@@ -1,7 +1,7 @@
 import express, { Response, Request, NextFunction, Router } from "express";
 import { runDbsInit } from "./services/run-dbs-init";
 import runServicesInit from "./services/run-services-init";
-import { attachControllersToRoute, Attacher } from "./controllers";
+import { attachRoutes, Attacher } from "./controllers";
 import attachMiddleware from "./middleware";
 import config from "./config";
 
@@ -10,17 +10,19 @@ export default class Bootstrap {
 
     static async loadAndStartApp() {
         const bootstrap = new Bootstrap();
-        await bootstrap.attachControllersToRoute().attachMiddleware().startAllInits();
-        bootstrap.attachEscapedErrorCatcher().startListening();
+
+        await bootstrap.startAllInits();
+        bootstrap.attachMiddleware();
+        bootstrap.attachControllersToRoute();
+        bootstrap.attachEscapedErrorCatcher();
+        bootstrap.startListening();
     }
 
     private constructor() {}
 
     private attachControllersToRoute() {
         const controllerAttacher = this.createControllerAttacher();
-        attachControllersToRoute(controllerAttacher);
-
-        return this;
+        attachRoutes(controllerAttacher);
     }
 
     private createControllerAttacher(): Attacher {
@@ -31,13 +33,11 @@ export default class Bootstrap {
 
     private attachMiddleware() {
         attachMiddleware(this.app);
-        return this;
     }
 
     private async startAllInits() {
         await runDbsInit();
         await runServicesInit();
-        return this;
     }
 
     private attachEscapedErrorCatcher() {
@@ -49,15 +49,13 @@ export default class Bootstrap {
 
             console.error("VERY CRITICAL: Uncaught error", err);
         });
-
-        return this;
     }
 
     private startListening() {
         this.app.listen(config.port, config.host, () => {
             console.log("app listening to", config.host + ":" + config.port);
         });
-        return this;
+
         // TODO: Prevent server from unexcepted crashing
     }
 }

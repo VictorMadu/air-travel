@@ -2,7 +2,7 @@ const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-    entry: "./src/client/index.ts",
+    entry: "./src/client/index.tsx",
     mode: process.env.NODE_ENV,
     output: {
         filename: "client-bundle.js",

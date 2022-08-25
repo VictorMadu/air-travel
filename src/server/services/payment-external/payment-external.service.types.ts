@@ -14,5 +14,6 @@ export interface ChargeDetails {
     id: string;
     charges: number[];
     hasPaid: boolean;
+    url: string | null;
 }
 export type StripeId = string;

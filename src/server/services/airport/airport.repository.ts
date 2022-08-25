@@ -15,6 +15,7 @@ import {
 } from "./airport.repository.types";
 import { OrdersTable } from "../../db/db-tables";
 import { OrderGetBy } from "./order-get-by.enum";
+import { MySQLValue } from "../../db/mysql-value";
 
 export default class AirportRepositoryImpl implements AirportRepository {
     constructor(
@@ -22,7 +23,8 @@ export default class AirportRepositoryImpl implements AirportRepository {
         private sanitizer: MySQLInDataSanitizer,
         private airPortsTable: AirportsTable,
         private orderTable: OrdersTable,
-        private mySQLDistanceInKM: MySQLDistanceInKM
+        private mySQLDistanceInKM: MySQLDistanceInKM,
+        private mySQLValue: MySQLValue
     ) {}
 
     async populateTableFrom(csvRowTraverser: RowTraverser) {
@@ -105,15 +107,25 @@ export default class AirportRepositoryImpl implements AirportRepository {
     private getOrdersDetailsByQueryCreators(search: { by: OrderGetBy; value: string }) {
         switch (search.by) {
             case OrderGetBy.chargeId:
-                return new GetOrderDetailsByChargeId(this.orderTable, this.sanitizer, {
-                    chargeId: search.value,
-                });
+                return new GetOrderDetailsByChargeId(
+                    this.orderTable,
+                    this.airPortsTable,
+                    this.sanitizer,
+                    {
+                        chargeId: search.value,
+                    }
+                );
 
             case OrderGetBy.id:
             default:
-                return new GetOrderDetailsById(this.orderTable, this.sanitizer, {
-                    id: search.value,
-                });
+                return new GetOrderDetailsById(
+                    this.orderTable,
+                    this.airPortsTable,
+                    this.sanitizer,
+                    {
+                        id: search.value,
+                    }
+                );
         }
     }
     private query<T extends QueryResult>(queryCreator: QueryCreator) {
@@ -207,8 +219,8 @@ class GetAirportDataSortedByScoresQueryManager implements QueryCreator {
     ) {}
 
     getQuery() {
-        const offset = this.sanitizer.sanitizeNum(this.inData.pagination.offset);
-        const batch = this.sanitizer.sanitizeNum(this.inData.pagination.batch);
+        const offset = this.sanitizer.sanitizeOffset(this.inData.pagination.offset);
+        const batch = this.sanitizer.sanitizeBatch(this.inData.pagination.batch);
 
         return `
             SELECT 
@@ -253,8 +265,8 @@ class GetUnsortedAirportDataQueryManager implements QueryCreator {
     ) {}
 
     getQuery() {
-        const offset = this.sanitizer.sanitizeNum(this.inData.pagination.offset);
-        const batch = this.sanitizer.sanitizeNum(this.inData.pagination.batch);
+        const offset = this.sanitizer.sanitizeOffset(this.inData.pagination.offset);
+        const batch = this.sanitizer.sanitizeBatch(this.inData.pagination.batch);
 
         return `
             SELECT 
@@ -325,9 +337,11 @@ class AddNewOrderQueryCreator implements QueryCreator {
     }
 }
 
+// TODO: Merge with GetOrderDetailsByChargeId
 class GetOrderDetailsByChargeId implements QueryCreator {
     constructor(
         private o: OrdersTable,
+        private t: AirportsTable,
         private sanitizer: MySQLInDataSanitizer,
         private inData: { chargeId: string }
     ) {}
@@ -335,17 +349,23 @@ class GetOrderDetailsByChargeId implements QueryCreator {
     getQuery() {
         return `
         SELECT
-            BIN_TO_UUID(${this.o.uuid}) id,
-            ${this.o.fromAirport} from_airport,
-            ${this.o.fromCountry} from_country,
-            ${this.o.toAirport} to_airport,
-            ${this.o.toCountry} to_country,
-            ${this.o.total} total,
-            ${this.o.stripeId} payment_id,
-            ${this.o.status} status
-        FROM ${this.o.NAME}
+            BIN_TO_UUID(o.${this.o.uuid}) id,
+            BIN_TO_UUID(t1.${this.t.uuid}) from_airport_id,
+            BIN_TO_UUID(t2.${this.t.uuid}) to_airport_id,
+            t1.${this.t.name} from_airport,
+            t2.${this.t.name} to_airport,
+            o.${this.o.total} total,
+            o.${this.o.stripeId} payment_id,
+            o.${this.o.status} status
+        FROM ${this.o.NAME} o
+        LEFT JOIN ${this.t.NAME} t1
+        ON 
+            t1.${this.t.id} = ${this.o.fromAirport}
+        LEFT JOIN ${this.t.NAME} t2
+        ON 
+            t2.${this.t.id} = ${this.o.toAirport}
         WHERE 
-            ${this.o.stripeId} = ${this.getStripeId()}
+            o.${this.o.stripeId} = ${this.getStripeId()}
         LIMIT 1`;
     }
 
@@ -357,6 +377,7 @@ class GetOrderDetailsByChargeId implements QueryCreator {
 class GetOrderDetailsById implements QueryCreator {
     constructor(
         private o: OrdersTable,
+        private t: AirportsTable,
         private sanitizer: MySQLInDataSanitizer,
         private inData: { id: string }
     ) {}
@@ -364,17 +385,25 @@ class GetOrderDetailsById implements QueryCreator {
     getQuery() {
         return `
         SELECT
-            BIN_TO_UUID(${this.o.uuid}) id,
-            ${this.o.fromAirport} from_airport,
-            ${this.o.fromCountry} from_country,
-            ${this.o.toAirport} to_airport,
-            ${this.o.toCountry} to_country,
-            ${this.o.total} total,
-            ${this.o.stripeId} payment_id,
-            ${this.o.status} status
-        FROM ${this.o.NAME}
+            BIN_TO_UUID(o.${this.o.uuid}) id,
+            BIN_TO_UUID(t1.${this.t.uuid}) from_airport_id,
+            BIN_TO_UUID(t2.${this.t.uuid}) to_airport_id,
+            t1.${this.t.name} from_airport,
+            t2.${this.t.name} to_airport,
+            o.${this.o.fromCountry} from_country,
+            o.${this.o.toCountry} to_country,
+            o.${this.o.total} total,
+            o.${this.o.stripeId} payment_id,
+            o.${this.o.status} status
+        FROM ${this.o.NAME} o
+        LEFT JOIN ${this.t.NAME} t1
+        ON 
+            t1.${this.t.id} = ${this.o.fromAirport}
+        LEFT JOIN ${this.t.NAME} t2
+        ON 
+            t2.${this.t.id} = ${this.o.toAirport}
         WHERE 
-            BIN_TO_UUID(${this.o.uuid}) = ${this.getId()}
+            BIN_TO_UUID(o.${this.o.uuid}) = ${this.getId()}
         LIMIT 1`;
     }
 

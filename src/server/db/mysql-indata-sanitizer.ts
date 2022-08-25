@@ -14,7 +14,7 @@ export default class MySQLInDataSanitizerImpl implements MySQLInDataSanitizer {
     }
 
     sanitizeNum(v: number | NullyInData) {
-        if (typeof v !== "number") return this.mySQLValue.null;
+        if (typeof v !== "number" || isNaN(v)) return this.mySQLValue.null;
         switch (v) {
             case Number.POSITIVE_INFINITY:
             case Number.NEGATIVE_INFINITY:
@@ -43,5 +43,19 @@ export default class MySQLInDataSanitizerImpl implements MySQLInDataSanitizer {
             .replace(this.unwantedSearchTextRegExp, "")
             .replace(this.unwantedSearchTextSpacesRegExp, " ");
         return this.sanitizeStr(searchText);
+    }
+
+    sanitizeOffset(v: number | NullyInData) {
+        return this.sanitizeNumOrUseDefault(v, "0");
+    }
+
+    sanitizeBatch(v: number | NullyInData) {
+        return this.sanitizeNumOrUseDefault(v, "1");
+    }
+
+    private sanitizeNumOrUseDefault(v: number | NullyInData, defaultValue: string) {
+        const num = this.sanitizeNum(v);
+        if (num === this.mySQLValue.null) return defaultValue;
+        return num;
     }
 }

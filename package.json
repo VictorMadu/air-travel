@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "npm-run-all --parallel dev:*",
+    "dev": "npm-run-all --parallel dev:build-* dev:run",
     "dev:run": "nodemon --watch dist --exec \"yarn start\"",
     "dev:run-server": "ts-node ./src/server/index.ts",
     "dev:run2": "npm-run-all --parallel dev:build-client dev:run-server",
@@ -19,6 +19,7 @@
     "test": ""
   },
   "devDependencies": {
+    "@craco/craco": "^6.4.5",
     "@types/axios": "^0.14.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cron": "^1.7.3",
@@ -66,6 +67,7 @@
     "@types/ioredis": "^4.28.10",
     "@types/lodash": "^4.14.178",
     "@types/ws": "^8.5.3",
+    "app-root-path": "^3.1.0",
     "autodetect-decoder-stream": "^2.0.2",
     "axios": "^0.27.2",
     "bcryptjs": "^2.4.3",

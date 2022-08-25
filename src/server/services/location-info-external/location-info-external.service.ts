@@ -8,7 +8,7 @@ import {
 
 export class LocationInfoExternalServiceImpl implements LocationInfoExternalService {
     private baseUrl = "http://api.weatherapi.com/v1";
-    private maxNoOfRetries = 10;
+    private maxNoOfRetries = 1;
 
     constructor(
         private fnCallRetrier: AsyncFnCallRetrier<any>,
@@ -16,9 +16,13 @@ export class LocationInfoExternalServiceImpl implements LocationInfoExternalServ
     ) {}
 
     async getInfoUsing(ipAddressOrLatLongOrLocationName: string) {
+        if (this.isIpAddressLocalhost(ipAddressOrLatLongOrLocationName))
+            return Promise.reject(null);
         const getData = () =>
             this.getData<CurrentInfo>("current.json", ipAddressOrLatLongOrLocationName);
-        return this.runWithRetries(getData);
+        const data = await this.runWithRetries(getData);
+        data.current.condition.icon = data.current.condition.icon.replace(/^\/\//, "");
+        return data;
     }
 
     async getPossibleLocationsInfoUsing(incompleteLocationSearch: string) {
@@ -36,5 +40,9 @@ export class LocationInfoExternalServiceImpl implements LocationInfoExternalServ
 
     private runWithRetries<T extends any>(fn: () => Promise<T>) {
         return this.fnCallRetrier.createNewInstance(fn, this.maxNoOfRetries).run();
+    }
+
+    private isIpAddressLocalhost(ipAddress: string) {
+        return ipAddress === "127.0.0.1" || ipAddress === "::1";
     }
 }

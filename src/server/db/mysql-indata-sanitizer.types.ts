@@ -3,6 +3,8 @@ export interface MySQLInDataSanitizer {
     sanitizeNum(v: number | NullyInData): string;
     sanitizeBool(v: boolean | NullyInData): string;
     sanitizeSearchText(v: string | NullyInData): string;
+    sanitizeOffset(v: number | NullyInData): string;
+    sanitizeBatch(v: number | NullyInData): string;
 }
 
 export type InData = NonNullyInData | NullyInData;

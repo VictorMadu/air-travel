@@ -16,7 +16,6 @@ export class PaymentExternalServiceImpl implements PaymentExternalService {
                 const description = chargeConfig.description ? chargeConfig.description : undefined;
                 const quantity = chargeConfig.quantity ?? 1;
                 const unitAmount = this.getValidAmount(chargeConfig.amountInCents);
-                console.log("unitAmout", typeof unitAmount, unitAmount);
                 charges[index] = quantity * unitAmount;
 
                 return {
@@ -37,6 +36,7 @@ export class PaymentExternalServiceImpl implements PaymentExternalService {
         return {
             id: session.id,
             hasPaid: session.payment_status === "paid",
+            url: session.url,
             charges,
         };
     }

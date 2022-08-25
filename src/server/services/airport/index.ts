@@ -3,6 +3,7 @@ import {
     dbManager,
     mySQLDistanceInKM,
     mySQLInDataSanitizer,
+    mySQLValue,
     ordersTable,
 } from "../../db";
 import { locationInfoExternalService } from "../location-info-external";
@@ -15,7 +16,8 @@ const airportRepository = new AirportRepository(
     mySQLInDataSanitizer,
     airportsTable,
     ordersTable,
-    mySQLDistanceInKM
+    mySQLDistanceInKM,
+    mySQLValue
 );
 
 export const airportService = new AirportService(

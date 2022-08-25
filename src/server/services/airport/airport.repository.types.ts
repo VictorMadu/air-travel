@@ -57,11 +57,13 @@ export interface ChargeDetail {
 
 export interface GetOrderDetailsResults {
     id: string;
+    from_airport_id: string;
     from_airport: string;
     from_country: string;
+    to_airport_id: string;
     to_airport: string;
     to_country: string;
     total: string;
     payment_id: string;
-    status: string;
+    status: "failed" | "paid";
 }

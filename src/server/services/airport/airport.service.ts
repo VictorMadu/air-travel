@@ -3,7 +3,12 @@ import { PaymentExternalService } from "../payment-external";
 import AirportCSVManager from "./airport-csv-manager";
 import { RowTraverser } from "./airport-csv-manager.types";
 import AirportRepository from "./airport.repository";
-import { AirportService, Coordinate, GetAirportQuery } from "./airport.service.type";
+import {
+    AirportService,
+    Coordinate,
+    GetAirportQuery,
+    PlacedOrderDetails,
+} from "./airport.service.type";
 import { OrderGetBy } from "./order-get-by.enum";
 
 export default class AirportServiceImpl implements AirportService {
@@ -24,7 +29,6 @@ export default class AirportServiceImpl implements AirportService {
         return this.locationInfoService
             .getPossibleLocationsInfoUsing(query.countryOrLocationSearch)
             .then((locationInfoService) => {
-                console.log("locationInfoService", locationInfoService);
                 return this.airportRepository.getAirportsSortedByScores(locationInfoService, query);
             })
             .catch(() => {
@@ -40,6 +44,7 @@ export default class AirportServiceImpl implements AirportService {
         return this.getDistanceFromLatLongInKm(fromAirportLatLong, toAirportLatLong);
     }
 
+    // TODO: Break this function
     async placeOrder(fromAirportUUID: string, toAirportUUID: string) {
         const fromAirportLatLong = await this.airportRepository.getLatLongFor(fromAirportUUID);
         const toAirportLatLong = await this.airportRepository.getLatLongFor(toAirportUUID);
@@ -62,7 +67,6 @@ export default class AirportServiceImpl implements AirportService {
             {
                 amountInCents: chargePerKM * total,
                 productName: "Air Travel",
-                description: ``,
             },
         ]);
 
@@ -86,10 +90,17 @@ export default class AirportServiceImpl implements AirportService {
             );
         }
 
-        return this.airportRepository.getOrdersDetailsBy({
+        const orderDetails = await this.airportRepository.getOrdersDetailsBy({
             by: OrderGetBy.chargeId,
             value: chargeDetails.id,
         });
+
+        const paymentUrl = chargeDetails.url;
+        if (!paymentUrl)
+            console.log("WARNING: order of uuid `", orderDetails.id, "` has no payment url");
+        (<PlacedOrderDetails>orderDetails).payment_url = chargeDetails.url;
+
+        return <PlacedOrderDetails>orderDetails;
     }
 
     async updatePaymentStatus(orderId: string) {
