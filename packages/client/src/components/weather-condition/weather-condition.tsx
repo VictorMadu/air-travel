@@ -11,15 +11,20 @@ const WeatherCondition = () => {
     return (
         <div className="wc">
             <div className="wc__detail">
-                <p className="wc__detail__location">
+                <h5 className="wc__detail__location">
                     <span>{state.region}</span>, <span>{state.country}</span>
-                </p>
+                </h5>
+            </div>
+
+            <div className="wc__detail__weather-container">
                 <div className="wc__detail__weather">
                     <div className="wc__detail__weather__img">
                         <img src={state.weatherIcon} alt="" />
                     </div>
-                    <p className="wc__detail__weather__degree">{state.degree}</p>
-                    <div className="wc__detail__weather__degree-type-btn-container">
+                    <div className="wc__detail__weather__degree">
+                        <h1>{state.degree}</h1>
+                    </div>
+                    <div className="wc__degree-type-btn-container">
                         <DegreeTypeBtn
                             ctx={degreeTypeBtnCtx}
                             type={DegreeType.celsius}
@@ -32,10 +37,11 @@ const WeatherCondition = () => {
                         />
                     </div>
                 </div>
+
                 <p className="wc__detail__weather__type">{state.weatherType}</p>
             </div>
 
-            <div>
+            <div className="wc__other-detail-container">
                 <OtherDetail title={"Humidity"} content={state.humidity} />
                 <OtherDetail title={"Lat/Long"} content={`${state.lat}/${state.long}`} />
             </div>

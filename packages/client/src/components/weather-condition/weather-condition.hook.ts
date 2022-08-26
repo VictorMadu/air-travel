@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { getWeatherDetailsFromUserLocation } from "../../externals/server/air-travel";
 import createPartial from "../../partials";
 import { DegreeType, WeatherDetails, WeatherOption } from "./weather-condition.types";
@@ -42,7 +42,7 @@ export function useWeatherCondition() {
             shouldEmphasize: partial.forStateFn(shouldEmphasize),
         },
         actions: {
-            toggleDegreeType: partial.forDispatch(toggleDegreeType),
+            setDegreeType: partial.forDispatch(setDegreeType),
         },
     };
 }
@@ -60,18 +60,9 @@ function shouldEmphasize(state: State, degreeType: DegreeType) {
 }
 
 // =================================== Actions ========================================
-function toggleDegreeType(dispatch: React.Dispatch<React.SetStateAction<State>>) {
-    dispatch((s) => ({ ...s, degreeTypeToShow: getNextDegree(s.degreeTypeToShow) }));
-}
-
-// ==================================== Private  ==================================
-function getNextDegree(currDegreeType: DegreeType) {
-    switch (currDegreeType) {
-        case DegreeType.celsius:
-            return DegreeType.farenheit;
-
-        case DegreeType.farenheit:
-        default:
-            return DegreeType.celsius;
-    }
+function setDegreeType(
+    dispatch: React.Dispatch<React.SetStateAction<State>>,
+    degreeTypeToShow: DegreeType
+) {
+    dispatch((s) => ({ ...s, degreeTypeToShow }));
 }

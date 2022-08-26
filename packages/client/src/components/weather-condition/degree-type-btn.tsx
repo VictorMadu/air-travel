@@ -6,7 +6,7 @@ const DegreeTypeBtn = ({ ctx, type, text }: DegreeTypeBtnProps) => {
         <button
             className="wc__degree-type-btn"
             data-emphasize={ctx.helper.shouldEmphasize(type)}
-            onClick={ctx.actions.toggleDegreeType}
+            onClick={() => ctx.actions.setDegreeType(type)}
         >
             {text}
         </button>
@@ -19,7 +19,7 @@ interface DegreeTypeBtnProps {
             shouldEmphasize: (degreeType: DegreeType) => boolean;
         };
         actions: {
-            toggleDegreeType: () => void;
+            setDegreeType: (degreeType: DegreeType) => void;
         };
     };
     type: DegreeType;

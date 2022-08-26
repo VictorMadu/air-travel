@@ -1,3 +1,104 @@
 .wc {
-    margin: 0 auto;   
+    margin: 0 auto;
+    width: fit-content;
+    padding: 1.2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7.5px);
+    -webkit-backdrop-filter: blur(7.5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.wc > * + * {
+    margin-top: 2rem;
+}
+
+
+.wc__detail__weather-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+.wc__detail__weather {
+    display: flex;
+    align-items: stretch;
+}
+
+
+.wc__detail__weather > * + * {
+    margin-left: 1rem;
+}
+
+.wc__detail__weather__degree {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wc__detail__weather__degree::after {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 3px solid var(--color-info-light);
+    border-radius: 50%;
+    content: "";
+    top: 0;
+    left: 100%;
+    margin-left: 2px;
+}
+
+.wc__degree-type-btn-container {
+    position: relative;
+    width: 20px;
+}
+
+
+.wc__degree-type-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    transition: all ease 300ms;
+    line-height: 0.5;
+    border-radius: 50%;
+    padding: 0.3rem;
+}
+
+.wc__degree-type-btn[data-emphasize=true] {
+    transform: scale(1.2) translateY(-100%);
+    font-weight: 800;
+    text-shadow: 2px 2px 4px #000000;
+    backdrop-filter: blur(0.12rem);
+    -webkit-backdrop-filter: blur(0.12rem);
+    font-size: 0.9rem;
+}
+
+.wc__detail__weather__type {
+    text-align: center;
+    width: 100%;
+    margin-top: 0.9rem;
+}
+
+.wc__other-detail-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.wc__other-detail__title {
+    text-transform: uppercase;
+    letter-spacing: 0.004rem;
+}
+
+.wc__other-detail__content {
+    text-align: right;
 }
