@@ -1,27 +1,30 @@
 import React, { useState } from "react";
 import DropdownSelect from "../dropdown-select";
+import "./airport-select-container.css";
 
 const AirportSelectContainer = (props: AirportSelectContainerProps) => {
-    const [searchValue, setSearchValue] = useState("");
-    const [selectedAirport, setSelectedAirport] = useState("");
+    const [state, setState] = useState({ searchValue: "", selectedAirport: "" });
 
     function handleSelect(airportDetail: AirportDetail) {
+        setState((s) => ({ ...s, selectedAirport: airportDetail.name }));
         props.onSelect(airportDetail.id);
-        setSelectedAirport(airportDetail.name);
     }
 
     return (
-        <div>
-            <p>{props.title}</p>
-            <p>{selectedAirport}</p>
-            <div>
+        <div className="asc">
+            <p className="asc__title">{props.title}</p>
+            {/* TODO: create resuable commponent for the empty space break  */}
+            <p className="asc__text">{state.selectedAirport || "\u00A0"}</p>
+            <div className="asc__select-container">
                 <input
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
+                    className="asc__select-container__search"
+                    value={state.searchValue}
+                    onChange={(e) => setState((s) => ({ ...s, searchValue: e.target.value }))}
                     placeholder={"Search by Country, City or Lat/Long"}
                 />
-
-                <DropdownSelect searchValue={searchValue} onSelect={handleSelect} />
+                <div className="asc__select-container__list-container">
+                    <DropdownSelect searchValue={state.searchValue} onSelect={handleSelect} />
+                </div>
             </div>
         </div>
     );

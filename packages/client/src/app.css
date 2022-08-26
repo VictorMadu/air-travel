@@ -49,10 +49,9 @@ body {
     font-family: var(--font-sans);
     font-size: 0.875rem;
     line-height: 1.25rem;
-    background-color: var(--background-color);
+    background-color: var(--color-background);
     user-select: none;
     overflow-x: hidden;
-   
 }
 
 img {
@@ -104,13 +103,13 @@ body {
     width: 100vw;
     height: 100vh;
     font-family: var(--font-sans);
-    font-size: 0.88rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
     background-color: var(--main-background-color);
     user-select: none;
     overflow-x: hidden;
-  
 }
 
 .text-muted {
-    color: var(--color-info-light)
+    color: var(--color-info-light);
 }

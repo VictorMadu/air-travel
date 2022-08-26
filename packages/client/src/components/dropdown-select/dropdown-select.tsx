@@ -1,4 +1,5 @@
 import { useDropdownSelect } from "./dropdown-select.hooks";
+import "./dropdown-select.css";
 
 const DropdownSelect = (props: DropdownSelectProps) => {
     const { airportDetails, fetchPreviousAirports, fetchNextAirports } = useDropdownSelect(
@@ -7,14 +8,10 @@ const DropdownSelect = (props: DropdownSelectProps) => {
     );
 
     return (
-        <div>
-            <div>
-                <button onClick={fetchPreviousAirports}>Previous</button>
-                <button onClick={fetchNextAirports}>Next</button>
-            </div>
-            <ul>
+        <div className="ds">
+            <ul className="ds__list">
                 {airportDetails.map((airportDetail) => (
-                    <li key={airportDetail.id}>
+                    <li key={airportDetail.id} className="ds__list-item">
                         <button onClick={() => props.onSelect(airportDetail)}>
                             {airportDetail.name}
                         </button>

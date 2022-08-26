@@ -7,23 +7,29 @@ const HomePage = () => {
     const homePage = useHomePage();
 
     return (
-        <div className="home-page">
-            <div></div>
+        <div className="hp">
             <WeatherCondition />
-            <div>
-                <div>
-                    <h4>{"Booked a Flight"}</h4>
-                    <button
-                        onClick={() => {
-                            console.log("Clicked");
-                            homePage.handlePayment();
-                        }}
-                    >
-                        {"Proceed to Payment"}
-                    </button>
+            <div className="hp__flight">
+                <div className="hp__flight__info">
+                    <h6 className="hp__flight__info__title">{"Book a Flight"}</h6>
+                    <div className="hp__flight__info__main">
+                        <div className="hp__flight__distance">
+                            <span className="hp__flight__distance__label text-muted">
+                                {"Distance: "}
+                            </span>{" "}
+                            <span className="hp__flight__distance__text">
+                                {homePage.airportDistance}
+                            </span>
+                        </div>
+                        <button
+                            className="hp__flight__info__pay-btn"
+                            onClick={homePage.handlePayment}
+                        >
+                            {"Proceed to Payment"}
+                        </button>
+                    </div>
                 </div>
-                <div>{homePage.airportDistance}</div>
-                <div>
+                <div className="hp__flight__airports-container">
                     <AirportSelectContainer title={"From"} onSelect={homePage.setFromAirportId} />
                     <AirportSelectContainer title={"To"} onSelect={homePage.setToAirportId} />
                 </div>
