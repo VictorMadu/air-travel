@@ -7,7 +7,7 @@ import {
 } from "./location-info-external.service.types";
 
 export class LocationInfoExternalServiceImpl implements LocationInfoExternalService {
-    private baseUrl = "http://api.weatherapi.com/v1";
+    private baseUrl = "https://api.weatherapi.com/v1";
     private maxNoOfRetries = 1;
 
     constructor(
@@ -21,8 +21,7 @@ export class LocationInfoExternalServiceImpl implements LocationInfoExternalServ
         const getData = () =>
             this.getData<CurrentInfo>("current.json", ipAddressOrLatLongOrLocationName);
         const data = await this.runWithRetries(getData);
-        data.current.condition.icon = data.current.condition.icon.replace(/^\/\//, "");
-        return data;
+        return this.getDataWithValidIconUrl(data);
     }
 
     async getPossibleLocationsInfoUsing(incompleteLocationSearch: string) {
@@ -44,5 +43,10 @@ export class LocationInfoExternalServiceImpl implements LocationInfoExternalServ
 
     private isIpAddressLocalhost(ipAddress: string) {
         return ipAddress === "127.0.0.1" || ipAddress === "::1";
+    }
+
+    private getDataWithValidIconUrl(data: CurrentInfo) {
+        data.current.condition.icon = data.current.condition.icon.replace(/^(\/\/)/, "https://");
+        return data;
     }
 }
