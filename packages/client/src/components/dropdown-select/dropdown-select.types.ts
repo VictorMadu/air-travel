@@ -5,6 +5,7 @@ export interface SearchValueManager {
 export interface State {
     airports: AirportDetail[];
     currOffset: number;
+    isFetching: boolean;
 }
 
 export interface AirportDetail {

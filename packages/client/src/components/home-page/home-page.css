@@ -29,28 +29,28 @@
     display: flex;
     justify-content: space-between;
     margin-top: 0.6rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     padding-bottom: 0.4rem;
 }
 
 .hp__flight__info__pay-btn {
-    padding: 0.2rem 0.6rem;
+    padding: 0.4rem 0.8rem;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.18);
     border-radius: var(--card-border-radius);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(7.5px);
     -webkit-backdrop-filter: blur(7.5px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
     transition: all ease 150ms;
 }
 
 .hp__flight__info__pay-btn:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .hp__flight__info__pay-btn:active {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.06);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);

@@ -1,149 +1,193 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getAirportsAround } from "../../externals/server/air-travel";
 import { AirportDetail, State } from "./dropdown-select.types";
-import { takeLatest } from "../../throttles";
-import memoize from "../../memoize";
-import NeededDataGetter, { NeededDataCtx } from "../../needed-data-getter";
-import { useImmuntable } from "../../hooks/use-immutable";
+import { takeLatest } from "../../utils/throttles";
+import memoize from "../../utils/memoize";
 import { useStateManager } from "../../hooks/use-state-manager";
+import {
+    InfiniteScrollManager,
+    neededDataGetterWithMemo,
+    NeededDataGetter,
+    NeededDataGetterCtx,
+} from "../../utils";
+import { OrWithPromise } from "ts-util-types";
 
-const neededDataGetter = new NeededDataGetter<AirportDetail>();
+// const neededDataGetter = new NeededDataGetter<AirportDetail>();
 
-const initialState: State = {
-    airports: [],
-    currOffset: 0,
-};
+const noOfItemsLeftBeforeAutoFetch = 5;
 
-export function useDropdownSelect(searchValue: string, batch: number) {
-    const stateManager = useStateManager<State>(initialState);
-    const fetchAndUpdateState = useImmuntable(
-        createAirportFetcher(stateManager, { throttleDelayTimeInMs: 1000 })
-    );
-
-    useEffect(() => {
-        const fetchInitialAirports = () => fetchAndUpdateState(searchValue, 0, batch);
-        fetchInitialAirports();
-    }, [searchValue, fetchAndUpdateState, batch]);
-
-    function fetch(offset: number) {
-        console.log("OFFSET", offset);
-        fetchAndUpdateState(searchValue, offset, batch);
-    }
-
-    function fetchPreviousAirports() {
-        console.log("Fetching preevious airports");
-        fetch(Math.max(0, stateManager.state.currOffset - stateManager.state.airports.length));
-    }
-
-    function fetchNextAirports() {
-        console.log("Fetching next airports");
-        fetch(stateManager.state.currOffset + stateManager.state.airports.length);
-    }
-
-    return {
-        airportDetails: stateManager.state.airports,
-        fetchPreviousAirports,
-        fetchNextAirports,
+function createFetchPrevForInfiniteScroll(fetcher: AirportFetcher) {
+    return (noOfItemsAboveView: number) => {
+        if (noOfItemsAboveView < noOfItemsLeftBeforeAutoFetch) fetcher.fetchPrev(6);
     };
 }
 
-function createAirportFetcher(
-    stateManager: StateManager<State>,
-    ctx: { throttleDelayTimeInMs: number }
-) {
-    const fetchAndUpdateStateFn = takeLatest(fetchAndUpdateState, ctx.throttleDelayTimeInMs);
+function createFetchAfterForInfiniteScroll(fetcher: AirportFetcher) {
+    return (noOfItemsBeforeView: number) => {
+        if (noOfItemsBeforeView < noOfItemsLeftBeforeAutoFetch) fetcher.fetchNext(6);
+    };
+}
 
-    function fetch(searchValue: string, offset: number, batch: number) {
-        return fetchAndUpdateStateFn({
-            stateManager,
-            searchValue,
-            offset,
-            batch,
-        } as FetchAndGetUpdateStateCtx);
+export function useDropdownSelect(searchValue: string) {
+    const infiniteParentRef = useRef<HTMLDivElement>(null);
+    const [state, setState] = useState<State>({
+        airports: [],
+        currOffset: 0,
+        isFetching: false,
+    });
+    const airportDetails = state.airports;
+    const fetcher = airPortFetcher.setCtx({
+        state,
+        setState,
+        searchValue,
+    });
+
+    const infinitScrollManager = useMemo(() => {
+        return new InfiniteScrollManager(
+            createFetchAfterForInfiniteScroll(fetcher),
+            createFetchPrevForInfiniteScroll(fetcher)
+        );
+    }, [fetcher]);
+
+    useEffect(() => {
+        const parentElm = infiniteParentRef.current;
+        if (parentElm == null) return;
+
+        infinitScrollManager.setContainer(parentElm);
+    }, [infinitScrollManager]);
+
+    useEffect(() => {
+        infinitScrollManager.refresh();
+    }, [airportDetails, infinitScrollManager]);
+
+    useEffect(() => {
+        fetcher.fetchInit(20);
+    }, [fetcher, searchValue]);
+
+    return {
+        infiniteParentRef,
+        infinitScrollManager,
+        airportDetails,
+    };
+}
+
+type FetchAiportsFn = (
+    location: string,
+    offset: number,
+    batch: number
+) => Promise<{
+    airports: AirportDetail[];
+}>;
+
+// TODO: Write decorator for transformed state and dispatch
+
+class AirportFetcher {
+    private state!: State;
+    private setState!: React.Dispatch<React.SetStateAction<State>>;
+    private batch!: number;
+    private searchValue!: string;
+    private offset!: number;
+    private currState!: State;
+    private fetchedAirports!: AirportDetail[];
+    private fetchAirports: () => OrWithPromise<void>;
+
+    constructor(
+        private neededDataGetter: NeededDataGetter<AirportDetail>,
+        private apiFetcher: (ctx: {
+            location: string;
+            batch: number;
+            offset: number;
+        }) => Promise<{ airports: AirportDetail[] }>,
+        private batchSize: number,
+        private throttleTimeInMs: number
+    ) {
+        this.fetchAirports = this.createFetchAirportsFn();
     }
-    return fetch;
-}
 
-interface FetchAndGetUpdateStateCtx {
-    searchValue: string;
-    offset: number;
-    batch: number;
-    stateManager: StateManager<State>;
-}
+    setCtx(ctx: {
+        state: State;
+        setState: React.Dispatch<React.SetStateAction<State>>;
+        searchValue: string;
+    }) {
+        this.state = ctx.state;
+        this.setState = ctx.setState;
+        this.searchValue = ctx.searchValue;
+        return this;
+    }
 
-// TODO: Arrange memos and throttles
-function createFetchAirportsMemo() {
-    return memoize(function (location: string, offset: number, batch: number) {
-        console.log("LOCATION", location);
-        return getAirportsAround({ location, offset, batch });
-    }, 2);
-}
+    fetchInit(batch: number) {
+        console.log("Fetching Initial");
+        this.batch = batch;
+        this.offset = 0;
+        this.fetchAirports();
+    }
 
-type AirportGetterFn = (ctx: NeededDataCtx<AirportDetail>) => AirportDetail[];
+    fetchPrev(batch: number) {
+        this.batch = batch;
+        this.offset = Math.max(0, this.state.currOffset - this.state.airports.length);
+        console.log("Fetching Prev", this.batch, this.offset);
+        this.fetchAirports();
+    }
 
-function createNeededAirportsMemo(getFn: AirportGetterFn) {
-    return memoize(function (fetched: AirportDetail[], curr: AirportDetail[], batch: number) {
-        return getFn({
-            fetchedData: fetched,
-            currData: curr,
-            batch,
+    fetchNext(batch: number) {
+        this.batch = batch;
+        this.offset = this.state.currOffset + this.state.airports.length;
+        console.log("Fetching Next", this.batch, this.offset);
+        this.fetchAirports();
+    }
+
+    private createFetchAirportsFn() {
+        const fetchAirportsMemo = this.createFetchAirportsMemo();
+
+        const fetchAirportFn = () => {
+            if (this.state.isFetching) return;
+
+            this.setState((s) => ({ ...s, isFetching: true }));
+            fetchAirportsMemo(this.searchValue, this.offset, this.batch).then(({ airports }) => {
+                this.setState((s) => {
+                    this.fetchedAirports = airports;
+                    this.currState = s;
+
+                    return this.getNewStateFromFetchedAirports();
+                });
+            });
+        };
+
+        return takeLatest(fetchAirportFn, this.throttleTimeInMs);
+    }
+
+    private getNewStateFromFetchedAirports(): State {
+        if (!this.fetchedAirports.length) return this.currState;
+
+        const ctx = this.getNeededDataGetterCtx();
+        let airports: AirportDetail[];
+
+        if (this.offset < this.currState.currOffset)
+            airports = this.neededDataGetter.withFetchedAtTop(ctx);
+        else airports = this.neededDataGetter.withFetchedAtBottom(ctx);
+
+        return { ...this.currState, airports, currOffset: this.offset, isFetching: false };
+    }
+
+    private createFetchAirportsMemo(): FetchAiportsFn {
+        return memoize((location: string, offset: number, batch: number) => {
+            return this.apiFetcher({ location, offset, batch });
+        }, this.batchSize);
+    }
+
+    private getNeededDataGetterCtx(): NeededDataGetterCtx<AirportDetail> {
+        return {
+            fetchedData: this.fetchedAirports,
+            currData: this.currState.airports,
+            batch: 20,
             getKey: (airport) => airport.id,
-        });
-    });
+        };
+    }
 }
 
-const fetchAirports = createFetchAirportsMemo();
-function fetchAndUpdateState(ctx: FetchAndGetUpdateStateCtx) {
-    console.log("FFFF fetchAndUpdateState");
-    const state = ctx.stateManager.state;
-    const setState = ctx.stateManager.setState;
-
-    const withFetchedAtTop = createNeededAirportsMemo(function (ctx) {
-        return neededDataGetter.withFetchedAtTop(ctx);
-    });
-    const withFetchedAtBottom = createNeededAirportsMemo(function (ctx) {
-        return neededDataGetter.withFetchedAtBottom(ctx);
-    });
-
-    console.log(
-        "getAirportsAroundMemo",
-        "searchValue",
-        ctx.searchValue,
-        "offset",
-        ctx.offset,
-        "batch",
-        ctx.batch
-    );
-
-    fetchAirports(ctx.searchValue, ctx.offset, ctx.batch).then(({ airports: fetchedAirports }) => {
-        console.log("FETCH AIRPORT ", fetchedAirports);
-        console.log("FETCH STATE", state);
-        console.log("LENGTH ", fetchedAirports.length.toString());
-        if (!fetchedAirports.length) return;
-
-        if (ctx.offset < state.currOffset) {
-            const airports = withFetchedAtTop(fetchedAirports, state.airports, ctx.batch);
-            console.log("STATE UPDATE AT TOP ", airports);
-            setState((s) => ({ ...s, airports, currOffset: ctx.offset }));
-        } else {
-            const airports = withFetchedAtBottom(fetchedAirports, state.airports, ctx.batch);
-            console.log("STATE UPDATE AT BOTTOM ", airports);
-            setState((s) => ({ ...s, airports, currOffset: ctx.offset }));
-        }
-    });
-}
-
-interface FetchAndGetUpdateStateCtx {
-    searchValue: string;
-    offset: number;
-    initialState: State;
-    currAirports: AirportDetail[];
-    currOffset: number;
-    batch: number;
-    setState: (s: State) => void;
-}
-
-interface StateManager<T extends any> {
-    state: T;
-    setState: React.Dispatch<React.SetStateAction<T>>;
-}
+const airPortFetcher = new AirportFetcher(
+    neededDataGetterWithMemo.getNewInstance(2),
+    getAirportsAround,
+    20,
+    1000
+);

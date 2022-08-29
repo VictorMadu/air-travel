@@ -8,13 +8,12 @@
     align-items: center;
     text-align: center;
     /* From https://css.glass */
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.18);
     border-radius: var(--card-border-radius);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(7.5px);
     -webkit-backdrop-filter: blur(7.5px);
     /* TODO: This is duplicated in some other components. Make DRY */
-    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .wc > * + * {
@@ -68,6 +67,7 @@
     line-height: 0.5;
     border-radius: 50%;
     padding: 0.3rem;
+    opacity: 0.6;
 }
 
 .wc__degree-type-btn[data-emphasize="true"] {
@@ -77,6 +77,7 @@
     backdrop-filter: blur(0.12rem);
     -webkit-backdrop-filter: blur(0.12rem);
     font-size: 0.9rem;
+    opacity: 1;
 }
 
 .wc__detail__weather__type {
@@ -91,11 +92,19 @@
     width: 100%;
 }
 
+.wc__other-detail-container > *:first-child {
+    text-align: left;
+}
+
+.wc__other-detail-container > *:last-child {
+    text-align: right;
+}
+
 .wc__other-detail__title {
     text-transform: uppercase;
     letter-spacing: -0.004rem;
 }
 
 .wc__other-detail__content {
-    text-align: right;
+    /* text-align: right; */
 }

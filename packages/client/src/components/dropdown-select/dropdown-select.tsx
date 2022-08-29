@@ -1,21 +1,22 @@
 import { useDropdownSelect } from "./dropdown-select.hooks";
 import "./dropdown-select.css";
+import DropdownSelectItem from "./dropdown-select-item";
 
 const DropdownSelect = (props: DropdownSelectProps) => {
-    const { airportDetails, fetchPreviousAirports, fetchNextAirports } = useDropdownSelect(
-        props.searchValue,
-        20
+    const { airportDetails, infiniteParentRef, infinitScrollManager } = useDropdownSelect(
+        props.searchValue
     );
 
     return (
-        <div className="ds">
+        <div className="ds" ref={infiniteParentRef}>
             <ul className="ds__list">
                 {airportDetails.map((airportDetail) => (
-                    <li key={airportDetail.id} className="ds__list-item">
-                        <button onClick={() => props.onSelect(airportDetail)}>
-                            {airportDetail.name}
-                        </button>
-                    </li>
+                    <DropdownSelectItem
+                        key={airportDetail.id}
+                        airportDetail={airportDetail}
+                        infiniteScrollManager={infinitScrollManager}
+                        onSelect={props.onSelect}
+                    />
                 ))}
             </ul>
         </div>

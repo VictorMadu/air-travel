@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getWeatherDetailsFromUserLocation } from "../../externals/server/air-travel";
-import createPartial from "../../partials";
+import createPartial from "../../utils/partials";
 import { DegreeType, WeatherDetails, WeatherOption } from "./weather-condition.types";
 
 type State = WeatherDetails & WeatherOption;

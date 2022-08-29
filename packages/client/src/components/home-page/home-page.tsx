@@ -5,7 +5,7 @@ import { useHomePage } from "./home-page.hooks";
 
 const HomePage = () => {
     const homePage = useHomePage();
-
+    // TODO: Use redux
     return (
         <div className="hp">
             <WeatherCondition />
@@ -16,7 +16,8 @@ const HomePage = () => {
                         <div className="hp__flight__distance">
                             <span className="hp__flight__distance__label text-muted">
                                 {"Distance: "}
-                            </span>{" "}
+                            </span>
+
                             <span className="hp__flight__distance__text">
                                 {homePage.airportDistance}
                             </span>
@@ -31,7 +32,7 @@ const HomePage = () => {
                 </div>
                 <div className="hp__flight__airports-container">
                     <AirportSelectContainer title={"From"} onSelect={homePage.setFromAirportId} />
-                    <AirportSelectContainer title={"To"} onSelect={homePage.setToAirportId} />
+                    {/* <AirportSelectContainer title={"To"} onSelect={homePage.setToAirportId} /> */}
                 </div>
             </div>
         </div>

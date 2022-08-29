@@ -57,7 +57,10 @@ router.post("/place-order", (req, res) => {
     const toAirportUUID = body.to_airport;
 
     if (!(fromAirportUUID && toAirportUUID))
-        return sendServerError(res, "Please provide from_airport and to_airport in body");
+        return send400(res, "Please provide from_airport and to_airport in body");
+
+    if (fromAirportUUID === toAirportUUID)
+        return send400(res, "You cannot book a flight from to the same airport");
 
     airportService
         .placeOrder(fromAirportUUID, toAirportUUID)

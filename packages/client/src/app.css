@@ -1,3 +1,4 @@
+/* TODO: Re-organize this styling */
 :root {
     --font-sans: Muli, sans-serif;
     --font-mono: "Space Mono", monospace;
@@ -7,7 +8,7 @@
     --color-white: #fff;
     --color-info-dark: #7d8da1;
     --color-info-light: #dce1eb;
-    --color-dark: #363949;
+    --color-dark: #020307;
     --color-light: rgba(132, 139, 200, 0.18);
     --color-primary-variant: #111e88;
     --color-dark-variant: #677483;
@@ -45,11 +46,11 @@ html {
 
 body {
     width: 100vw;
-    height: 100vh;
+    height: 500vh;
     font-family: var(--font-sans);
     font-size: 0.875rem;
     line-height: 1.25rem;
-    background-color: var(--color-background);
+    background-color: var(--color-primary-variant);
     user-select: none;
     overflow-x: hidden;
 }
@@ -97,17 +98,6 @@ small {
 
 button {
     cursor: pointer;
-}
-
-body {
-    width: 100vw;
-    height: 100vh;
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.5rem;
-    background-color: var(--main-background-color);
-    user-select: none;
-    overflow-x: hidden;
 }
 
 .text-muted {

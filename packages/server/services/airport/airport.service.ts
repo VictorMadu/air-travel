@@ -46,6 +46,8 @@ export default class AirportServiceImpl implements AirportService {
 
     // TODO: Break this function
     async placeOrder(fromAirportUUID: string, toAirportUUID: string) {
+        if (fromAirportUUID === toAirportUUID)
+            return Promise.reject("From and To airport are the same"); // TODO: Use error codes or enum. This can help in better communication btw controller and service
         const fromAirportLatLong = await this.airportRepository.getLatLongFor(fromAirportUUID);
         const toAirportLatLong = await this.airportRepository.getLatLongFor(toAirportUUID);
         // TODO: Do all computation with latlong as string to preserve all values

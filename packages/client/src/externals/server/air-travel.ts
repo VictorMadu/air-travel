@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import { round } from "../../utils/round";
 
 // TODO: For all get request coming from server as page loads, pass data from server to html pages using SSR
 
@@ -33,7 +34,7 @@ export function calculateDistanceBtw(fromAiportID: string, toAirportID: string) 
             from_airport: fromAiportID,
             to_airport: toAirportID,
         },
-    }).then(({ data }) => data.distance);
+    }).then(({ data }) => round(data.distance, 2));
 }
 
 export function getAirportsAround({

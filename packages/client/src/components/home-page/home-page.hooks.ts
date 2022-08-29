@@ -28,6 +28,6 @@ export function useHomePage() {
         setFromAirportId,
         setToAirportId,
         handlePayment,
-        airportDistance,
+        airportDistance: airportDistance ? airportDistance + " km" : "_",
     };
 }
