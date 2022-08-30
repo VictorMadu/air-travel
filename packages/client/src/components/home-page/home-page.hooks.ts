@@ -3,31 +3,36 @@ import { calculateDistanceBtw, placeTravelOrder } from "../../externals/server/a
 import { orderStore } from "../../externals/store";
 
 export function useHomePage() {
-    const [fromAirportId, setFromAirportId] = useState("");
-    const [toAirportId, setToAirportId] = useState("");
+    const [fromAirport, setFromAirport] = useState<Airport | null>(null);
+    const [toAirport, setToAirport] = useState<Airport | null>(null);
     const [airportDistance, setAirportDistance] = useState(0);
 
     function handlePayment() {
-        if (!(fromAirportId && toAirportId)) return;
+        if (!(fromAirport && toAirport)) return;
 
-        placeTravelOrder(fromAirportId, toAirportId).then((orderDetails) => {
+        placeTravelOrder(fromAirport.id, toAirport.id).then((orderDetails) => {
             orderStore.save(orderDetails);
             window.open(orderDetails.payment_url, "_self");
         });
     }
 
     useEffect(() => {
-        if (!(fromAirportId && toAirportId)) return;
+        if (!(fromAirport && toAirport)) return;
 
-        calculateDistanceBtw(fromAirportId, toAirportId)
+        calculateDistanceBtw(fromAirport.id, toAirport.id)
             .then(setAirportDistance)
             .catch(() => alert("Error obtaining distance"));
-    }, [fromAirportId, toAirportId]);
+    }, [fromAirport, toAirport]);
 
     return {
-        setFromAirportId,
-        setToAirportId,
+        setFromAirport,
+        setToAirport,
         handlePayment,
         airportDistance: airportDistance ? airportDistance + " km" : "_",
     };
+}
+
+interface Airport {
+    id: string;
+    name: string;
 }

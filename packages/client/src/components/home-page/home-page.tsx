@@ -31,8 +31,8 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div className="hp__flight__airports-container">
-                    <AirportSelectContainer title={"From"} onSelect={homePage.setFromAirportId} />
-                    {/* <AirportSelectContainer title={"To"} onSelect={homePage.setToAirportId} /> */}
+                    <AirportSelectContainer title={"From"} onSelect={homePage.setFromAirport} />
+                    <AirportSelectContainer title={"To"} onSelect={homePage.setToAirport} />
                 </div>
             </div>
         </div>

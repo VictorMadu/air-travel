@@ -1,7 +1,7 @@
 export type FnForMemo<T extends any> = (
     fetched: T[],
     curr: T[],
-    batch: number,
+    neededMaxSize: number,
     getKey: (datum: T) => Key
 ) => T[];
 
@@ -14,7 +14,7 @@ export interface NeededDataGetterWithMemo<T extends any> extends NeededDataGette
 export interface NeededDataGetterCtx<T extends any> {
     fetchedData: T[];
     currData: T[];
-    batch: number;
+    neededMaxSize: number;
     getKey: (datum: T) => Key;
 }
 

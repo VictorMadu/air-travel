@@ -52,25 +52,26 @@ export class NeededDataGetterWithMemoImpl<T extends any> implements NeededDataGe
     }
 
     private createGetNeededDataMemo(getNeededDataFn: GetNeededDataFn<T>) {
-        return this.memoizeFn((fetched, curr, batch, getKey) => {
+        return this.memoizeFn((fetched, curr, neededMaxSize, getKey) => {
             return getNeededDataFn({
                 fetchedData: fetched,
                 currData: curr,
-                batch,
+                neededMaxSize,
                 getKey,
             });
         }, this.cacheSize);
     }
 
     private getArgs(ctx: NeededDataGetterCtx<T>): FuncParams<FnForMemo<T>> {
-        return [ctx.fetchedData, ctx.currData, ctx.batch, ctx.getKey];
+        return [ctx.fetchedData, ctx.currData, ctx.neededMaxSize, ctx.getKey];
     }
 }
 
 export default class NeededDataGetterImpl<T extends any> implements NeededDataGetter<T> {
-    private strategyManager = new StrategyManagerImpl<T>(new LoopActionRunnerImpl<T>());
     private strategy!: FetchedPositionStrategy<T>;
     private ctx!: NeededDataGetterCtx<T>;
+
+    constructor(private loopActionRunner: LoopActionRunnerImpl<T>) {}
 
     withFetchedAtTop(ctx: NeededDataGetterCtx<T>) {
         this.ctx = ctx;
@@ -88,38 +89,14 @@ export default class NeededDataGetterImpl<T extends any> implements NeededDataGe
         const insertManager = new AllNeededInsertManagerImpl(
             this.ctx.fetchedData,
             this.ctx.currData,
-            this.ctx.batch,
+            this.ctx.neededMaxSize,
             this.ctx.getKey
         );
-        return this.strategyManager
-            .setInsertManager(insertManager)
-            .setStrategy(this.strategy)
-            .getAllNeededData();
+        return this.strategy.getAllNeededData(this.loopActionRunner, insertManager);
     }
 }
 
-class StrategyManagerImpl<T extends any> implements StrategyManager<T> {
-    private insertManager!: AllNeededInsertManager<T>;
-    private strategy!: FetchedPositionStrategy<T>;
-
-    constructor(private loopActionRunner: LoopActionRunnerImpl<T>) {}
-
-    setStrategy(strategy: FetchedPositionStrategy<T>) {
-        this.strategy = strategy;
-        return this;
-    }
-
-    setInsertManager(insertManager: AllNeededInsertManager<T>) {
-        this.insertManager = insertManager;
-        return this;
-    }
-
-    getAllNeededData() {
-        return this.strategy.getAllNeededData(this.loopActionRunner, this.insertManager);
-    }
-}
-
-class LoopActionRunnerImpl<T extends any> implements LoopActionRunner<T> {
+export class LoopActionRunnerImpl<T extends any> implements LoopActionRunner<T> {
     private manager!: NeededInserter<T>;
     private start!: (manager: NeededInserter<T>) => number;
     private incr!: (index: number, manager: NeededInserter<T>) => number;

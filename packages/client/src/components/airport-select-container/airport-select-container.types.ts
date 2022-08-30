@@ -1,8 +1,6 @@
-export interface SearchValueManager {
-    onSelect: (airportId: string) => void;
-}
-
 export interface State {
+    searchValue: string;
+    selectedAirport: AirportDetail;
     airports: AirportDetail[];
     currOffset: number;
     isFetching: boolean;

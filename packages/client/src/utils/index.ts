@@ -1,5 +1,8 @@
 import memoize from "./memoize";
-import NeededDataGetterImpl, { NeededDataGetterWithMemoImpl } from "./needed-data-getter";
+import NeededDataGetterImpl, {
+    LoopActionRunnerImpl,
+    NeededDataGetterWithMemoImpl,
+} from "./needed-data-getter";
 
 export type {
     NeededDataGetter,
@@ -8,5 +11,5 @@ export type {
 } from "./needed-data-getter.types";
 export { default as InfiniteScrollManager } from "./infinite-scroll-manager";
 
-export const neededDataGetter = new NeededDataGetterImpl();
+export const neededDataGetter = new NeededDataGetterImpl(new LoopActionRunnerImpl());
 export const neededDataGetterWithMemo = new NeededDataGetterWithMemoImpl(neededDataGetter, memoize);

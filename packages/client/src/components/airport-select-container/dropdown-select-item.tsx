@@ -1,28 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { AirportDetail } from "./dropdown-select.types";
+import { AirportDetail } from "./airport-select-container.types";
 
-const DropdownSelectItem = ({
-    infiniteScrollManager,
-    airportDetail,
-    onSelect,
-}: DropdownSelectItemProps) => {
-    const ref = useRef<HTMLLIElement>(null);
-    useEffect(() => {
-        if (ref.current == null) return;
-        return infiniteScrollManager.attachChild(airportDetail.id, ref.current);
-    }, [airportDetail.id, infiniteScrollManager]);
-
+const DropdownSelectItem = ({ airportDetail, onSelect }: DropdownSelectItemProps) => {
     return (
-        <li ref={ref} className="ds__list-item">
+        <li className="ds__list-item">
             <button onClick={() => onSelect(airportDetail)}>{airportDetail.name}</button>
         </li>
     );
 };
 
 interface DropdownSelectItemProps {
-    infiniteScrollManager: {
-        attachChild(key: string, elm: Element): () => void;
-    };
     airportDetail: AirportDetail;
     onSelect: (airportDetail: AirportDetail) => void;
 }
