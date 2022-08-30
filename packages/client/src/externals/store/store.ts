@@ -24,6 +24,7 @@ export class StoreImpl<T extends Data> implements Store<T> {
     listen(fn: Listener<T>): void {
         this.listeners.add(fn);
     }
+
     unlisten(fn: Listener<T>): void {
         this.listeners.delete(fn);
     }

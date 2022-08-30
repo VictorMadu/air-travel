@@ -11,14 +11,12 @@ export class StoreManagerImpl implements StoreManager {
     saveToStore(storeKey: string, item: {}) {
         const data = this.getAllData();
         data[storeKey] = item;
-
         this.saveAllData(data);
     }
 
     deleteFromStore(storeKey: string) {
         const data = this.getAllData();
         delete data[storeKey];
-
         this.saveAllData(data);
     }
 

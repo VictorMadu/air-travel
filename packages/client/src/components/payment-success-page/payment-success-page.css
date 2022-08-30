@@ -1,0 +1,53 @@
+.ps-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.ps {
+    margin: 0.6rem auto;
+    width: 95%;
+    max-width: 40rem;
+    padding: 1.2rem 3rem;
+    text-align: center;
+
+    background-color: rgba(255, 255, 255, 0.18);
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7.5px);
+    -webkit-backdrop-filter: blur(7.5px);
+    /* TODO: This is duplicated in some other components. Make DRY */
+}
+
+.ps__order-detail {
+    margin: 5% 0;
+}
+
+.ps__order-detail > * + * {
+    margin-top: 0.8rem;
+}
+
+.ps__order-detail__section {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.ps__order-detail__section__title {
+    font-weight: bold;
+    text-transform: capitalize;
+    margin-right: 0.5rem;
+}
+
+.ps__order-detail__section__title::after {
+    content: ":";
+    margin-left: 0.05rem;
+}
+
+@media screen and (min-width: 1024px) {
+    .ps__order-detail__section {
+        flex-direction: row;
+    }
+}

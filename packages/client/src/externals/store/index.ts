@@ -1,3 +1,4 @@
+import NullLocalStorage from "./null-local-storage";
 import { StoreImpl } from "./store";
 import { StoreManagerImpl } from "./store-manager";
 import { OrderData } from "./store.types";
@@ -7,18 +8,7 @@ const orderStoreName = "order";
 
 const storeManager = new StoreManagerImpl(rootName, function () {
     if (typeof window !== "undefined") return localStorage;
-    return {
-        getItem(key) {
-            return null;
-        },
-        setItem(key, value) {},
-        length: 0,
-        clear() {},
-        key(index) {
-            return null;
-        },
-        removeItem(key) {},
-    };
+    return new NullLocalStorage();
 });
 
 export const nullOrderData: OrderData = {

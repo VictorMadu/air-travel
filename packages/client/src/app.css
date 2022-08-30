@@ -44,17 +44,6 @@ html {
     font-size: 16px;
 }
 
-body {
-    width: 100vw;
-    height: 500vh;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    background-color: var(--color-primary-variant);
-    user-select: none;
-    overflow-x: hidden;
-}
-
 img {
     display: block;
     width: 100%;
@@ -74,6 +63,7 @@ h2 {
 h3 {
     font-size: 1.875rem;
     line-height: 2.25rem;
+    letter-spacing: -0.06rem;
 }
 
 h4 {
