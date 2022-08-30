@@ -40,8 +40,8 @@ export function calculateDistanceBtw(fromAiportID: string, toAirportID: string) 
 
 export const getAirportsAroundWithMemo = memoize(function (
     location: string,
-    batch?: number,
-    offset?: number
+    offset?: number,
+    batch?: number
 ) {
     return getAirportsAround({ location, batch, offset });
 },
