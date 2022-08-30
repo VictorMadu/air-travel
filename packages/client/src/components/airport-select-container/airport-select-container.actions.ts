@@ -1,5 +1,4 @@
 import { NeededDataGetter } from "../../utils";
-import memoize from "../../utils/memoize";
 import { takeLatest } from "../../utils/throttles";
 import { AirportDetail } from "./airport-select-container.types";
 import { AirportStateManager } from "./airport-select-container.state";
@@ -64,20 +63,20 @@ export class AirportFetcher {
         this.fetchAndUpdateAirports();
     }
 
-    fetchPrev(ctx: { batch: number }) {
+    fetchPrev({ batch = this.maxDataSize }: { batch?: number }) {
         const state = this.stateManager.getState();
 
-        this.batch = ctx.batch;
+        this.batch = batch;
         this.offset = Math.max(0, state.currOffset - this.batch);
         console.log("Fetching Prev", this.batch, this.offset);
         this.fetchAndUpdateAirports();
     }
 
-    fetchNext(ctx: { batch: number; searchValue: string }) {
+    fetchNext({ batch = this.maxDataSize }: { batch?: number }) {
         const state = this.stateManager.getState();
 
-        this.batch = ctx.batch;
-        this.offset = state.currOffset + this.batch;
+        this.batch = batch;
+        this.offset = state.currOffset + state.airports.length;
         console.log("Fetching Next", this.batch, this.offset);
         this.fetchAndUpdateAirports();
     }

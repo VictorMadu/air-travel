@@ -8,6 +8,7 @@ const AirportSelectContainer = (props: AirportSelectContainerProps) => {
         searchValue,
         selectedAirport,
         airportArr,
+        airportFetcher,
         handleSearchValueChange,
         handleSelectedAirport,
     } = useAirportSelect({ onSelect: props.onSelect });
@@ -18,12 +19,28 @@ const AirportSelectContainer = (props: AirportSelectContainerProps) => {
             {/* TODO: create resuable commponent for the empty space break  */}
             <p className="asc__text">{selectedAirport.name || "\u00A0"}</p>
             <div className="asc__select-container">
-                <input
-                    className="asc__select-container__search"
-                    value={searchValue}
-                    onChange={handleSearchValueChange}
-                    placeholder={"Search by Country, City or Lat/Long"}
-                />
+                <div className="as__select-container__action">
+                    <input
+                        className="as__select-container__action__search"
+                        value={searchValue}
+                        onChange={handleSearchValueChange}
+                        placeholder={"Search by Country, City or Lat/Long"}
+                    />
+                    <div className="as__select-container__action-btns">
+                        <button
+                            className="as__select-container__btn-prev"
+                            onClick={() => airportFetcher.fetchPrev({})}
+                        >
+                            <span></span>
+                        </button>
+                        <button
+                            className="as__select-container__btn-next"
+                            onClick={() => airportFetcher.fetchNext({})}
+                        >
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
                 <div className="asc__select-container__list-container">
                     <DropdownSelect airports={airportArr} onSelect={handleSelectedAirport} />
                 </div>
