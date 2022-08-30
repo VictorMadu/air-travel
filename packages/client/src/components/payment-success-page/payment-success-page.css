@@ -33,12 +33,15 @@
     text-align: left;
     display: flex;
     flex-direction: column;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 .ps__order-detail__section__title {
     font-weight: bold;
     text-transform: capitalize;
     margin-right: 0.5rem;
+    word-break: keep-all;
 }
 
 .ps__order-detail__section__title::after {
